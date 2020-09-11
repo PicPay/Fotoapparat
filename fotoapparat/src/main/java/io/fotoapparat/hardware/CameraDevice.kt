@@ -9,12 +9,15 @@ import androidx.annotation.FloatRange
 import io.fotoapparat.capability.Capabilities
 import io.fotoapparat.capability.provide.getCapabilities
 import io.fotoapparat.characteristic.Characteristics
-import io.fotoapparat.characteristic.toCameraId
 import io.fotoapparat.coroutines.AwaitBroadcastChannel
 import io.fotoapparat.exception.camera.CameraException
 import io.fotoapparat.hardware.metering.FocalRequest
 import io.fotoapparat.hardware.metering.convert.toFocusAreas
-import io.fotoapparat.hardware.orientation.*
+import io.fotoapparat.hardware.orientation.Orientation
+import io.fotoapparat.hardware.orientation.OrientationState
+import io.fotoapparat.hardware.orientation.computeDisplayOrientation
+import io.fotoapparat.hardware.orientation.computeImageOrientation
+import io.fotoapparat.hardware.orientation.computePreviewOrientation
 import io.fotoapparat.log.Logger
 import io.fotoapparat.parameter.FocusMode
 import io.fotoapparat.parameter.Resolution
@@ -33,12 +36,13 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-typealias PreviewSize = io.fotoapparat.parameter.Resolution
+typealias PreviewSize = Resolution
 
 /**
  * Camera.
  */
 internal open class CameraDevice(
+        private val cameraId: Int,
         private val logger: Logger,
         val characteristics: Characteristics
 ) {
@@ -60,16 +64,13 @@ internal open class CameraDevice(
     open fun open() {
         logger.recordMethod()
 
-        val lensPosition = characteristics.lensPosition
-        val cameraId = lensPosition.toCameraId()
-
         try {
             camera = Camera.open(cameraId)
             capabilities.complete(camera.getCapabilities())
             previewStream = PreviewStream(camera)
         } catch (e: RuntimeException) {
             throw CameraException(
-                    message = "Failed to open camera with lens position: $lensPosition and id: $cameraId",
+                    message = "Failed to open camera with id: $cameraId",
                     cause = e
             )
         }

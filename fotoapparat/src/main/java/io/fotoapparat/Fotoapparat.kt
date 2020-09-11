@@ -53,6 +53,7 @@ class Fotoapparat
     private val display = Display(context)
 
     private val device = Device(
+            context,
             cameraRenderer = view,
             focusPointSelector = focusView,
             logger = logger,
