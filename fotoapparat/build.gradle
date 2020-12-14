@@ -1,8 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'kotlin-android'
-
-group = 'io.fotoapparat'
+apply from: 'publish.gradle'
 
 android {
     buildToolsVersion versions.android.buildTools
@@ -41,15 +39,3 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
     testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
 }
-
-ext {
-    bintrayName = 'fotoapparat'
-
-    libraryName = 'Fotoapparat'
-    artifact = 'fotoapparat'
-    libraryVersion = artifactVersion
-
-    libraryDescription = 'Camera library for Android with a more user-friendly API.'
-}
-
-apply from: '../deploy.gradle'

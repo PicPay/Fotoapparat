@@ -1,0 +1,52 @@
+apply plugin: 'maven-publish'
+
+afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from getComponent(components)
+
+                groupId = project.findProperty("library.groupId")
+                artifactId = project.findProperty("library.artifactId")
+                version = project.findProperty("library.version") + versionSuffix()
+
+                artifact androidSourcesJar
+            }
+        }
+
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                def repository = project.findProperty("library.repository")
+                url = uri("https://maven.pkg.github.com/PicPay/" + repository)
+                credentials {
+                    username = System.getenv("GITHUB_USER")
+                    password = System.getenv("GITHUB_USER_TOKEN")
+                }
+            }
+        }
+    }
+}
+
+task androidSourcesJar(type: Jar) {
+    getArchiveClassifier().set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+static def getComponent(SoftwareComponentContainer container) {
+    def android = container.findByName("release")
+    if (android != null) {
+        return android
+    } else {
+        def java = container.findByName("java")
+        if (java != null) {
+            return java
+        } else {
+            throw new IllegalStateException("Missing components")
+        }
+    }
+}
+
+static def versionSuffix() {
+    return System.getenv("VERSION_SUFFIX") ?: ''
+}
