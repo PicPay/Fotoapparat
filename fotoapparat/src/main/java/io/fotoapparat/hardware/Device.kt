@@ -2,8 +2,14 @@
 
 package io.fotoapparat.hardware
 
+import android.content.Context
 import android.hardware.Camera
+import android.hardware.camera2.CameraManager
+import android.os.Build
+import androidx.annotation.RequiresApi
+import io.fotoapparat.characteristic.getCameraManager
 import io.fotoapparat.characteristic.getCharacteristics
+import io.fotoapparat.characteristic.getCharacteristicsByCameraId
 import io.fotoapparat.concurrent.CameraExecutor
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.configuration.Configuration
@@ -24,22 +30,22 @@ import kotlinx.coroutines.CompletableDeferred
  * Phone.
  */
 internal open class Device(
+        context: Context,
         internal open val logger: Logger,
         private val display: Display,
         internal open val scaleType: ScaleType,
         internal open val cameraRenderer: CameraRenderer,
         internal val focusPointSelector: FocalPointSelector?,
         internal val executor: CameraExecutor,
-        numberOfCameras: Int = Camera.getNumberOfCameras(),
         initialConfiguration: CameraConfiguration, initialLensPositionSelector: LensPositionSelector
 ) {
 
-    private val cameras = (0 until numberOfCameras).map { cameraId ->
-        CameraDevice(
-                logger = logger,
-                characteristics = getCharacteristics(cameraId)
-        )
-    }
+    private val cameras: List<CameraDevice> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getCameras(context.getCameraManager())
+            } else {
+                getCamerasLegacy()
+            }
 
     private var lensPositionSelector: LensPositionSelector = initialLensPositionSelector
     private var selectedCameraDevice = CompletableDeferred<CameraDevice>()
@@ -155,6 +161,34 @@ internal open class Device(
      * @return The desired from the user camera lens position.
      */
     open fun getLensPositionSelector(): LensPositionSelector = lensPositionSelector
+
+    /**
+     * @return List of [CameraDevice] from [android.hardware.camera2.CameraManager]
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun getCameras(cameraManager: CameraManager): List<CameraDevice> {
+        return cameraManager.cameraIdList.map { cameraId ->
+            CameraDevice(
+                    cameraId = cameraId.toInt(),
+                    logger = logger,
+                    characteristics = cameraManager.getCharacteristicsByCameraId(cameraId)
+            )
+        }
+    }
+
+    /**
+     * @return List of [CameraDevice] from legacy [android.hardware.Camera]
+     */
+    private fun getCamerasLegacy(): List<CameraDevice> {
+        return (0 until Camera.getNumberOfCameras())
+                .map { cameraId ->
+                    CameraDevice(
+                            cameraId,
+                            logger = logger,
+                            characteristics = getCharacteristics(cameraId)
+                    )
+                }
+    }
 
 }
 
