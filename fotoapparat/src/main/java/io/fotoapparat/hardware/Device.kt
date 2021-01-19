@@ -148,8 +148,8 @@ internal open class Device(
      */
     open suspend fun getCameraParameters(cameraDevice: CameraDevice): CameraParameters =
             getCameraParameters(
-                    cameraConfiguration = savedConfiguration,
-                    capabilities = cameraDevice.getCapabilities()
+                    capabilities = cameraDevice.getCapabilities(),
+                    cameraConfiguration = savedConfiguration
             )
 
     /**
