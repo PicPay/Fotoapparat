@@ -23,7 +23,7 @@ android {
 dependencies {
     compileOnly project(':fotoapparat')
     compileOnly "io.reactivex:rxjava:${versions.rx.rxJava1}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin.lang}"
     testImplementation "io.reactivex:rxjava:${versions.rx.rxJava1}"
     testImplementation "junit:junit:${versions.test.junit}"
 }

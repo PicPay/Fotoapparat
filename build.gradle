@@ -10,7 +10,10 @@ buildscript {
     ext {
         versions = [
                 gradle : '6.5.1',
-                kotlin : '1.4.20',
+                kotlin : [
+                        lang: '1.4.20',
+                        coroutines: '1.4.2'
+                ],
                 code   : 1,
                 name   : '1.0.0',
                 sdk    : [
@@ -39,7 +42,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.lang}"
 
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'

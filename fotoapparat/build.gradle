@@ -33,9 +33,10 @@ android {
 dependencies {
     implementation "androidx.annotation:annotation:${versions.android.annotation}"
     implementation "androidx.exifinterface:exifinterface:${versions.android.exifinterface}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin.lang}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}"
     testImplementation "junit:junit:${versions.test.junit}"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin.lang}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
     testImplementation "org.mockito:mockito-core:${versions.test.mockito}"
 }

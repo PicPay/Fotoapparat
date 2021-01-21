@@ -1,6 +1,7 @@
 package io.fotoapparat.routine.camera
 
 import io.fotoapparat.configuration.Configuration
+import io.fotoapparat.error.CameraDeviceException
 import io.fotoapparat.hardware.CameraDevice
 import io.fotoapparat.hardware.Device
 import kotlinx.coroutines.runBlocking
@@ -21,15 +22,19 @@ internal fun Device.updateDeviceConfiguration(newConfiguration: Configuration) {
  */
 internal fun Device.updateCameraConfiguration(
         cameraDevice: CameraDevice
-) = runBlocking {
-    val cameraParameters = getCameraParameters(cameraDevice)
-    val frameProcessor = getFrameProcessor()
+) = try {
+    runBlocking {
+        val cameraParameters = getCameraParameters(cameraDevice)
+        val frameProcessor = getFrameProcessor()
 
-    cameraDevice.updateParameters(
-            cameraParameters = cameraParameters
-    )
+        cameraDevice.updateParameters(
+                cameraParameters = cameraParameters
+        )
 
-    cameraDevice.updateFrameProcessor(
-            frameProcessor = frameProcessor
-    )
+        cameraDevice.updateFrameProcessor(
+                frameProcessor = frameProcessor
+        )
+    }
+} catch (error: VerifyError) {
+    throw CameraDeviceException(cause = error)
 }

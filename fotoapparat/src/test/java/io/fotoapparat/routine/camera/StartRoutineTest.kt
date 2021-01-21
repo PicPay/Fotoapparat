@@ -156,5 +156,4 @@ internal class StartRoutineTest {
 
         verify(device).start(orientationSensor)
     }
-
 }

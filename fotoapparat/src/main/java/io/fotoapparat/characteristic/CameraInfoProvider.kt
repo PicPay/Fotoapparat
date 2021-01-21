@@ -8,7 +8,10 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import androidx.annotation.RequiresApi
+import io.fotoapparat.error.CameraDeviceException
 import io.fotoapparat.hardware.orientation.toOrientation
+import java.lang.AssertionError
+import java.lang.RuntimeException
 
 /**
  * Returns the [Characteristics] for the given `cameraId`.
@@ -31,7 +34,13 @@ internal fun Context.getCameraManager() = getSystemService(Context.CAMERA_SERVIC
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal fun CameraManager.getCharacteristicsByCameraId(cameraId: String): Characteristics {
-    val characteristics = getCameraCharacteristics(cameraId)
+    val characteristics = try {
+        getCameraCharacteristics(cameraId)
+    } catch (e: AssertionError) {
+        throw CameraDeviceException(cause = e)
+    } catch (e: RuntimeException) {
+        throw CameraDeviceException(cause = e)
+    }
 
     val lensPosition: LensPosition = when(characteristics.get(LENS_FACING)) {
         CameraMetadata.LENS_FACING_FRONT -> LensPosition.Front
